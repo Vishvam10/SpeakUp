@@ -23,3 +23,13 @@ def get_global_mongodb_db_name() -> str:
         raise ValueError("Global MongoDB Adapter Manager is not initialized")
 
     return g.db_name
+
+def get_global_audio_classifier() -> str:
+    if g.audio_classifer is None:
+        print(
+            "Audio classifier is not initialized : ",
+            g.audio_classifer,
+        )
+        raise ValueError("Global audio classifier is not initialized")
+
+    return g.audio_classifer
