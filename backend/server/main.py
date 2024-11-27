@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from globals.setter import set_mongodb_client, set_audio_classifier
+from globals.setter import set_mongodb_client, set_audio_classifier, set_s3_storage
 
 from api.tags import APITags
 from api.router import MainRouter
@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
         
         set_mongodb_client()
         set_audio_classifier()
+        set_s3_storage()
 
         yield
         

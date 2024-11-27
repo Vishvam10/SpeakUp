@@ -1,6 +1,7 @@
 import globals.state as g
 
 from pymongo import MongoClient
+from storage.s3 import S3Storage
 
 
 def get_global_mongodb_client() -> MongoClient:
@@ -24,6 +25,7 @@ def get_global_mongodb_db_name() -> str:
 
     return g.db_name
 
+
 def get_global_audio_classifier() -> str:
     if g.audio_classifer is None:
         print(
@@ -33,3 +35,14 @@ def get_global_audio_classifier() -> str:
         raise ValueError("Global audio classifier is not initialized")
 
     return g.audio_classifer
+
+
+def get_global_s3_storage() -> S3Storage:
+    if g.s3_storage is None:
+        print(
+            "S3 storage is not initialized : ",
+            g.s3_storage,
+        )
+        raise ValueError("Global S3 storage is not initialized")
+
+    return g.s3_storage

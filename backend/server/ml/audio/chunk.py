@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import librosa
+from math import ceil
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -24,7 +25,7 @@ def create_chunks_with_padding(audio, sr, start, end, chunk_duration, step_size,
         if len(chunk) < min_size:
             chunk = np.pad(chunk, (0, min_size - len(chunk)), mode="constant")
 
-        local_chunks.append((chunk, i / sr, chunk_end / sr))
+        local_chunks.append((chunk, ceil(i / sr), ceil(chunk_end / sr)))
     return local_chunks
 
 def chunk_audio_parallel_with_padding(audio_path, chunk_duration=CHUNK_DURATION, overlap=CHUNK_OVERLAP_DURATION, sample_rate=SAMPLING_RATE, num_workers=4):

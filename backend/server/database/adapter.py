@@ -27,10 +27,18 @@ class MongoDBAdapter:
             print(f"Error converting ObjectId to string : {e}")
             raise
 
-    def create(self, data: dict) -> str:
+    def insert_one(self, data: dict) -> str:
         try:
             document_data = {**data}
             result = self.collection.insert_one(document_data)
+            return result
+        except PyMongoError as e:
+            print(f"Error creating document : {e}")
+            raise
+
+    def insert_many(self, data: list) -> str:
+        try:
+            result = self.collection.insert_many(data)
             return result
         except PyMongoError as e:
             print(f"Error creating document : {e}")

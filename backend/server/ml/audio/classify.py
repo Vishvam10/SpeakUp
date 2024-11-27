@@ -1,7 +1,6 @@
 import os
 import json
 
-from typing import AsyncGenerator
 from dotenv import load_dotenv
 
 from ml.audio.analysis import analyze_modulation_and_pitch

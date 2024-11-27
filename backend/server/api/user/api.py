@@ -54,7 +54,7 @@ async def create_user(
     user_data["updated_at"] = now
     user_data["deleted_at"] = None
 
-    db.create(user_data)
+    db.insert_one(user_data)
 
     return {"status": status.HTTP_201_CREATED, "user_id": user_data["user_id"]}
 
@@ -87,7 +87,6 @@ async def update_user(
     current_user: str = Depends(get_current_user),
 ):
     
-    print("\n\nTF : ", current_user)
     if user_id != current_user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
