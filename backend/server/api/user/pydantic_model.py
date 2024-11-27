@@ -1,9 +1,17 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class UserCreate(BaseModel):
-    email: str
+    name: str
+    email: EmailStr
     password: str
 
 class UserUpdate(BaseModel):
-    email: str
-    password: str
+    name: str | None = None
+    email: EmailStr | None = None
+    old_password: str | None = None
+    password: str | None = None
+
+class UserResponse(BaseModel):
+    user_id: str
+    name: str
+    email: EmailStr
