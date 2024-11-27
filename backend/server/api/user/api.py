@@ -2,12 +2,12 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, status
 
 from api.tags import APITags
-from api.user.pydantic_model import UserCreate, UserUpdate, UserResponse
+from api.user.model import UserCreate, UserUpdate, UserResponse
 
 from database.adapter import MongoDBAdapter
 from database.manager import get_adapter
 
-from utils.hash import hash_password, generate_uuid, verify_password
+from utils.auth import get_current_user, hash_password, generate_uuid, verify_password
 
 UserAPIRouter = APIRouter(prefix="/user", tags=[APITags.USER])
 
@@ -26,7 +26,8 @@ async def get_all_users(db: MongoDBAdapter = Depends(get_user_mongo_adapter)):
 
 @UserAPIRouter.post("/")
 async def create_user(
-    user: UserCreate, db: MongoDBAdapter = Depends(get_user_mongo_adapter)
+    user: UserCreate,
+    db: MongoDBAdapter = Depends(get_user_mongo_adapter),
 ):
     if not user.email or "@" not in user.email:
         raise HTTPException(status_code=400, detail="Invalid email format")
@@ -60,8 +61,16 @@ async def create_user(
 
 @UserAPIRouter.get("/{user_id}", response_model=UserResponse)
 async def get_user(
-    user_id: str, db: MongoDBAdapter = Depends(get_user_mongo_adapter)
+    user_id: str,
+    db: MongoDBAdapter = Depends(get_user_mongo_adapter),
+    current_user: str = Depends(get_current_user),
 ):
+    if user_id != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this user's data",
+        )
+
     user = db.find_one({"user_id": user_id})
     if not user:
         raise HTTPException(
@@ -75,7 +84,16 @@ async def update_user(
     user_id: str,
     user: UserUpdate,
     db: MongoDBAdapter = Depends(get_user_mongo_adapter),
+    current_user: str = Depends(get_current_user),
 ):
+    
+    print("\n\nTF : ", current_user)
+    if user_id != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this user's data",
+        )
+
     existing_user = db.find_one({"user_id": user_id})
     if not existing_user:
         raise HTTPException(
@@ -90,7 +108,7 @@ async def update_user(
             )
 
         if (user.old_password != user.password) and (
-            not verify_password(existing_user["password"], user.old_password)
+            not verify_password(user.old_password, existing_user["password"])
         ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -116,8 +134,15 @@ async def update_user(
 
 @UserAPIRouter.delete("/{user_id}")
 async def delete_user(
-    user_id: str, db: MongoDBAdapter = Depends(get_user_mongo_adapter)
+    user_id: str,
+    db: MongoDBAdapter = Depends(get_user_mongo_adapter),
+    current_user: str = Depends(get_current_user),
 ):
+    if user_id != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this user's data",
+        )
     deleted = db.delete({"user_id": user_id})
     if not deleted:
         raise HTTPException(status_code=404, detail="User not found")
