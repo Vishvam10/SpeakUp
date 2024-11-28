@@ -1,9 +1,10 @@
 import numpy as np
 
-# This will be used while streaming real-time analytics while the 
+
+# This will be used while streaming real-time analytics while the
 # video is playing
 def generate_feedback(
-    pitch, loudness, pitch_variation, loudness_variation, emotion
+    mean_pitch, mean_loudness, pitch_variation, loudness_variation, emotion
 ):
     feedback = {}
 
@@ -45,8 +46,6 @@ def generate_feedback(
         )
 
     # Pitch Feedback
-    mean_pitch = np.mean(pitch)
-
     if emotion == "happy":
         if mean_pitch < 180:
             feedback["pitch"] = (
@@ -81,7 +80,7 @@ def generate_feedback(
         )
 
     # Loudness Feedback
-    mean_loudness = np.mean(loudness)
+
     if mean_loudness < 0.01:
         feedback["loudness"] = (
             "Your volume is too low, making it hard for the audience to hear clearly. "

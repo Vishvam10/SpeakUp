@@ -37,6 +37,17 @@ def get_global_audio_classifier() -> str:
     return g.audio_classifer
 
 
+def get_global_image_classifier() -> str:
+    if g.image_classifier is None:
+        print(
+            "Image classifier is not initialized : ",
+            g.image_classifier,
+        )
+        raise ValueError("Global image classifier is not initialized")
+
+    return g.image_classifier
+
+
 def get_global_s3_storage() -> S3Storage:
     if g.s3_storage is None:
         print(

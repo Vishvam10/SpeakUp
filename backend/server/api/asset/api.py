@@ -68,6 +68,7 @@ async def create_asset(
         (
             thumbnail_url,
             audio_buffer,
+            video_fps
         ) = await generate_thumbnail_and_extract_audio(file.file)
 
         # Moving the cursor back to the beginning since during the audi
@@ -87,6 +88,9 @@ async def create_asset(
             "s3_video_file_name": s3_video_file_name,
             "s3_audio_file_name": s3_audio_file_name,
             "thumbnail": thumbnail_url,
+            "video_metadata" : {
+                "fps" : video_fps
+            }
         }
 
         db.insert_one(asset_data)

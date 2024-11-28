@@ -31,6 +31,19 @@ def set_audio_classifier() -> None:
     except Exception as e:
         print("Error occurred while connecting to DB : ", e)
 
+def set_image_classifier() -> None:
+    from transformers import pipeline
+
+    try:
+        g.image_classifier = pipeline(
+            "image-classification",
+            model="dima806/facial_emotions_image_detection",
+            device=0,
+        )
+
+    except Exception as e:
+        print("Error occurred while connecting to DB : ", e)
+
 
 def set_s3_storage() -> None:
     from storage.s3 import S3Storage

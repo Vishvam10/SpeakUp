@@ -5,24 +5,31 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from globals.setter import set_mongodb_client, set_audio_classifier, set_s3_storage
+from globals.setter import (
+    set_mongodb_client,
+    set_audio_classifier,
+    set_image_classifier,
+    set_s3_storage,
+)
 
 from api.tags import APITags
 from api.router import MainRouter
 
 warnings.filterwarnings("ignore")
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
         print("Application starting")
-        
+
         set_mongodb_client()
         set_audio_classifier()
+        set_image_classifier()
         set_s3_storage()
 
         yield
-        
+
     except Exception as e:
         print(f"An error occurred during setup: {e}")
     finally:
