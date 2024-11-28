@@ -1,15 +1,12 @@
-import { useState } from 'react'
-import VideoPlayer from './components/VideoPlayer'
-import './App.css'
+import AnalysisStream from "./components/AnalysisStream";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <VideoPlayer />
+      <AnalysisStream />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
