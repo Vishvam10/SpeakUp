@@ -12,7 +12,8 @@ function VideoPlayer() {
             setAnalyzedChunks((prev) => [...prev, data]);
         };
         return () => source.close();
-    }, []);
+    // }, []);
+    }, [setAnalyzedChunks]);
 
     const handleSeeking = (e) => {
         const time = e.target.currentTime;
