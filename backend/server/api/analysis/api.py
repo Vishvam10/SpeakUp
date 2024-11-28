@@ -1,16 +1,32 @@
 import os
 import io
 import json
+import tempfile
+import random
 import asyncio
+import requests
 import numpy as np
 
-from fastapi import APIRouter, UploadFile, HTTPException, File
+from fastapi import APIRouter, UploadFile, HTTPException, Depends
 from fastapi.responses import StreamingResponse
+
+from database.adapter import MongoDBAdapter
+from database.manager import get_adapter
 
 from ml.audio.chunk import chunk_audio_parallel_with_padding
 from ml.audio.classify import classify_audio_chunk
 
+from ml.video.chunk import chunk_video_parallel_with_padding
+from ml.video.classify import classify_video_chunk
+
+from ml.feedback import generate_feedback
+from ml.score import calculate_speaking_score
+
+from globals.getter import get_global_s3_storage
+
 from api.tags import APITags
+
+from utils.auth import generate_uuid
 
 from dotenv import load_dotenv
 
@@ -20,53 +36,127 @@ AnalysisAPIRouter = APIRouter(prefix="/analysis", tags=[APITags.ANALYSIS])
 
 CHUNK_DURATION = int(os.environ.get("ANALYSIS.CHUNK_DURATION", 5))
 CHUNK_OVERLAP_DURATION = int(
-    os.environ.get("ANALYSIS.CHUNK_OVERLAP_DURATION", 2)
+    os.environ.get("ANALYSIS.CHUNK_OVERLAP_DURATION", 0)
 )
 SAMPLING_RATE = int(os.environ.get("ANALYSIS.SAMPLING_RATE", 20000))
 
 
-# FastAPI Endpoint
-@AnalysisAPIRouter.post("/video")
-async def analyze_video(file: UploadFile = File(...)) -> StreamingResponse:
+@AnalysisAPIRouter.post("/{asset_id}")
+async def analyze_audio_video(
+    asset_id: str, audio_file: UploadFile, video_file: UploadFile
+):
     try:
-        if not (
-            file.content_type.startswith("video/")
-            or file.content_type.startswith("audio/")
-        ):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid file type. Please upload a video or audio file.",
-            )
+        # Convert UploadFile to bytes for librosa and OpenCV
+        audio_bytes = await audio_file.read()
+        video_bytes = await video_file.read()
 
-        # Read file content
-        file_content = await file.read()
-        audio_file = io.BytesIO(file_content)
+        video_file_path = ""
 
-        chunks = chunk_audio_parallel_with_padding(
-            audio_file,
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".mp4"
+        ) as temp_file:
+            temp_file.write(video_bytes)
+            video_file_path = temp_file.name
+
+        audio_stream = io.BytesIO(audio_bytes)
+
+        # Process the audio file: chunk it and classify
+        audio_chunks = chunk_audio_parallel_with_padding(
+            audio_stream,
             chunk_duration=CHUNK_DURATION,
             overlap=CHUNK_OVERLAP_DURATION,
+            sample_rate=SAMPLING_RATE,
         )
-        data = [
+
+        audio_data = [
             {
                 "audio": np.array(chunk[0], dtype=np.float32),
                 "timestep": chunk[1],
             }
-            for chunk in chunks
+            for chunk in audio_chunks
         ]
 
-        def get_feedback_in_parallel(data: list):
-            for chunk in data:
-                res = classify_audio_chunk(chunk)
-                yield json.dumps(res).encode("utf-8")
-                print("res : ", res)
-
-        return StreamingResponse(
-            get_feedback_in_parallel(data), media_type="application/json"
+        # Process video file similarly
+        video_chunks = chunk_video_parallel_with_padding(
+            video_file_path,
+            chunk_duration=CHUNK_DURATION,
+            overlap=CHUNK_OVERLAP_DURATION,
+            fps=30,
         )
 
-    except asyncio.CancelledError as e:
-        print("Asyncio cancellation error: ", e)
+        video_data = [
+            {
+                "frame": np.array(chunk[0], dtype=np.float32),
+                "timestep": chunk[1],
+            }
+            for chunk in video_chunks
+        ]
+
+        print("\n\nChunk size : ", len(audio_data), len(video_data), "\n\n")
+        fps = 30
+
+        # Create an async generator to yield results as they are processed
+        async def generate_analysis():
+            for i, (audio_chunk, video_chunk) in enumerate(
+                zip(audio_data, video_data)
+            ):
+                print(f"Processing timestep {i}")
+                audio_results = classify_audio_chunk(audio_chunk)
+
+                video_results = classify_video_chunk(
+                    video_chunk["frame"],
+                    fps,
+                    i,
+                    frames_per_chunk=CHUNK_DURATION * fps,
+                )
+
+                feedback = generate_feedback(
+                    audio_results["mean_pitch"],
+                    audio_results["mean_loudness"],
+                    audio_results["pitch_variation"],
+                    audio_results["loudness_variation"],
+                    audio_results["emotions"][0],
+                )
+
+                score = calculate_speaking_score(
+                    audio_results.get("emotions", []),
+                    video_results.get("emotions", []),
+                    audio_results["pitch_variation"],
+                    audio_results["loudness_variation"],
+                    40,
+                    audio_results["silence_duration"],
+                    audio_results["average_volume"],
+                )
+
+                analysis_result = {
+                    "timestep": audio_results.get("timestep"),
+                    "emotions": video_results.get("emotions", []),
+                    "score": score,
+                    "feedback": feedback,
+                    "audio": {
+                        "mean_pitch": audio_results.get("mean_pitch"),
+                        "mean_loudness": audio_results.get("mean_loudness"),
+                        "pitch_variation": audio_results.get("pitch_variation"),
+                        "loudness_variation": audio_results.get(
+                            "loudness_variation"
+                        ),
+                        "silence_duration": audio_results.get(
+                            "silence_duration"
+                        ),
+                        "average_volume": audio_results.get("average_volume"),
+                        "background_noise_level": audio_results.get(
+                            "background_noise_level"
+                        ),
+                    },
+                }
+
+                yield json.dumps(analysis_result) + "\n"
+
+        # Use StreamingResponse to stream the results
+        return StreamingResponse(
+            generate_analysis(), media_type="application/json"
+        )
+
     except Exception as e:
-        print("An error occurred: ", e)
+        print("Error occurred while analyzing : ", e)
         raise HTTPException(status_code=500, detail="Something went wrong")
