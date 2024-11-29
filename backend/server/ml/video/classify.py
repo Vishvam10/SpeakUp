@@ -51,9 +51,9 @@ def classify_video_chunk(
                 emotions.extend([pred["emotion"] for pred in predictions])
                 scores.extend([pred["score"] for pred in predictions])
 
-    emotions_counter = Counter(emotions)
-    emotions_list = list(emotions_counter.keys())
-    frequencies = list(emotions_counter.values())
+    emotions_counter = Counter(emotions).most_common(2)
+    emotions_list = [emotion for emotion, _ in emotions_counter]
+    frequencies = [freq for _, freq in emotions_counter]
 
     res = {
         "timestep": starting_timestep,

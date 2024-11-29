@@ -34,4 +34,4 @@ async def login(
         )
 
     access_token = create_access_token(user_id=user_data["user_id"])
-    return {"token": f"Bearer {access_token}"}
+    return {"token": f"Bearer {access_token}", "user_id" : user_data["user_id"]}

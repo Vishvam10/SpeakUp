@@ -119,8 +119,6 @@ async def analyze_audio_video(
                 )
 
                 score = calculate_speaking_score(
-                    audio_results.get("emotions", []),
-                    video_results.get("emotions", []),
                     audio_results["pitch_variation"],
                     audio_results["loudness_variation"],
                     40,
@@ -130,7 +128,6 @@ async def analyze_audio_video(
 
                 analysis_result = {
                     "timestep": audio_results.get("timestep"),
-                    "emotions": video_results.get("emotions", []),
                     "score": score,
                     "feedback": feedback,
                     "audio": {
@@ -148,6 +145,10 @@ async def analyze_audio_video(
                             "background_noise_level"
                         ),
                     },
+                    "video" : {
+                        "emotions": video_results.get("emotions", []),
+                        "frequencies" : video_results.get("frequencies", []),
+                    }
                 }
 
                 yield json.dumps(analysis_result) + "\n"
