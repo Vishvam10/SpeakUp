@@ -4,14 +4,26 @@ This FastAPI-powered backend is the engine behind the SpeakUp application, desig
 
 ### Key Features:
 
-- **Open-Source Models**:
-  - Finetuned _Wav2Vec2_ for robust audio analysis.
-  - _Facial Emotions Image Detection_ for video-based emotion recognition.
-- **No Proprietary AI**:
-  - No reliance on GPT or generative AI models—ensuring privacy, transparency, and full control over your data.
-- **Seamless Integration**:
+- **Open-Source Models :**
+
+  - `Finetuned Wav2Vec2` for robust audio analysis.
+  - `Facial Emotions Image Detection` for video-based emotion recognition.
+
+- **No Proprietary AI :**
+
+  - **No reliance on GPT or generative AI** models - ensuring privacy, transparency,
+    and full control over your data.
+
+- **Seamless Integration :**
+
   - Full support for **AWS S3** to store and manage large media files (video/audio).
   - **MongoDB** for managing core application data, including `users`, `assets`, and `analysis`.
+
+- **Experiments :**
+
+  - The `experiments` folder contains a collection of .ipynb files for running and
+    testing various models and analysis techniques.
+  - We have experimented with `Speech Analysis`, `Speech Transcription`, `Video Analysis` (Emotion Detection, Posture and Gesture Recognition)
 
 ### API Overview:
 
