@@ -1,7 +1,10 @@
 ## React + Vite Frontend
 
 This repository contains the frontend for the SpeakUp app, built using 
-**React** and **Vite** for a fast, modern web experience.
+**React** and **Vite** for a fast, modern web experience. 
+
+> [!NOTE]
+> Although many video types are supported, `.mp4` would work best
 
 ### Getting Started
 
@@ -33,3 +36,4 @@ To set up the project locally, follow these steps :
     ```bash
         npm run build
     ```
+
