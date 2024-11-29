@@ -1,8 +1,35 @@
-# React + Vite
+## React + Vite Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains the frontend for the SpeakUp app, built using 
+**React** and **Vite** for a fast, modern web experience.
 
-Currently, two official plugins are available:
+### Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+To set up the project locally, follow these steps :
+
+1. **Install Dependencies**:
+
+
+    ```bash
+        npm install
+
+        # If it complains
+        npm install --legacy-peer-deps
+
+        # If it still complains, I know it's bad, I'll change the versions later
+        npm install --force
+
+    ```
+
+2. Run the dev server :
+
+    ```bash
+        npm run dev
+    ```
+
+3. Build the app :
+
+
+    ```bash
+        npm run build
+    ```

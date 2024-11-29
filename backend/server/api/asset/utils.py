@@ -10,22 +10,52 @@ import noisereduce as nr
 from dotenv import load_dotenv
 
 from moviepy import VideoFileClip
-from fastapi import HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 
 load_dotenv()
 
 SAMPLING_RATE = int(os.environ.get("ANALYSIS.SAMPLING_RATE", 20000))
 
-
-async def generate_thumbnail_and_extract_audio(file: io.BytesIO):
+async def extract_audio(video_bytes):
     try:
-        
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+            temp_video_file.write(video_bytes)
+            video_file_path = temp_video_file.name
+
+        video = VideoFileClip(video_file_path)
+        audio = video.audio
+
+        audio_buffer = None
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_audio_file:
+            audio.write_audiofile(temp_audio_file.name, codec="mp3")
+            temp_audio_file.flush()
+            temp_audio_file.seek(0)
+            audio_buffer = temp_audio_file.read()
+
+        os.remove(video_file_path)  # Clean up temp video file
+
+        audio_buffer, _ = await remove_background_noise(audio_buffer)
+
+        return audio_buffer
+
+    except Exception as e:
+        print("Extract audio failed: ", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate thumbnail: {str(e)}",
+        )
+
+async def generate_thumbnail_and_extract_audio(file: UploadFile):
+    try:
         video_fps = 30
 
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".mp4"
-        ) as temp_video_file:
-            temp_video_file.write(file.read())
+        # Asynchronous read from the UploadFile
+        video_bytes = await file.read()
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+            temp_video_file.write(video_bytes)
             temp_video_file.close()
 
             video = VideoFileClip(temp_video_file.name)
@@ -37,27 +67,24 @@ async def generate_thumbnail_and_extract_audio(file: io.BytesIO):
         thumbnail_resized = cv2.resize(thumbnail, (100, 100))
 
         _, buffer = cv2.imencode(".jpg", thumbnail_resized)
-
         thumbnail_bytes = buffer.tobytes()
         thumbnail_base64 = base64.b64encode(thumbnail_bytes).decode("utf-8")
 
         audio = video.audio
+
         audio_buffer = None
 
-        # Write the audio to a temporary file
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".mp3"
-        ) as temp_audio_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_audio_file:
             audio.write_audiofile(temp_audio_file.name, codec="mp3")
-
-            # Ensure the buffer's cursor is at the beginning
-            temp_audio_file.seek(0)
+            temp_audio_file.flush()  # Ensure all data is written
+            temp_audio_file.seek(0)  # Reset pointer for reading
             audio_buffer = temp_audio_file.read()
 
-            temp_audio_file.close()
-            # Clean up the temporary audio file
-            os.remove(temp_audio_file.name)
 
+        # Clean up the temporary video file after audio is extracted
+        os.remove(temp_video_file.name)
+
+        # Remove noise asynchronously
         audio_buffer, _ = await remove_background_noise(audio_buffer)
 
         return (thumbnail_base64, audio_buffer, video_fps)
@@ -68,7 +95,6 @@ async def generate_thumbnail_and_extract_audio(file: io.BytesIO):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate thumbnail: {str(e)}",
         )
-
 
 async def remove_background_noise(
     audio, sr=SAMPLING_RATE, noise_profile_duration=1.0

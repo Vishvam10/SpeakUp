@@ -14,10 +14,10 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<AnalysisStream />} />
-        <Route path="/login" element={<LoginPage />} />
+        {/* <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<SettingsPage />} /> */}
       </Routes>
     </Router>
   );

@@ -1,4 +1,6 @@
-function TextChip({ category, message, color }) {
+function TextChip({ category, message, color, big = false }) {
+  console.log("Big prop:", big);
+
   return (
     <div
       style={{
@@ -7,7 +9,7 @@ function TextChip({ category, message, color }) {
         alignItems: "flexStart",
         textAlign: "left",
         width: "10rem",
-        height: "fit-content",
+        height: "auto",
         padding: "1.2rem",
         margin: "1rem",
         border: `1px solid ${color}`,
@@ -20,17 +22,18 @@ function TextChip({ category, message, color }) {
         style={{
           fontSize: "0.8rem",
           fontWeight: "bold",
-          margin : "0rem 0rem -1rem 0rem"
+          margin: "0rem 0rem -1rem 0rem",
         }}
       >
         {category}
       </h5>
+      
 
       <p
         style={{
-          fontSize: "0.8rem",
-          fontWeight: "normal",
-          margin : "1rem 0rem 0rem 0rem"
+        fontSize: big === true ? "4.2rem" : "0.8rem",
+          fontWeight: big === true ? "bold" : "normal",
+          margin: "1rem 0rem 0rem 0rem",
         }}
       >
         {message}
