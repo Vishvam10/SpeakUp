@@ -1,7 +1,5 @@
 ## SpeakUp Backend
 
-### Introduction
-
 This FastAPI-powered backend is the engine behind the SpeakUp application, designed to deliver accurate and insightful analysis of user audio and video data.
 
 ### Key Features:
