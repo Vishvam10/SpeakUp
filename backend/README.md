@@ -2,28 +2,27 @@
 
 ### Introduction
 
-
-Welcome to the SpeakUp Backend! This FastAPI-powered backend is the engine behind the SpeakUp application, designed to deliver accurate and insightful analysis of user audio and video data.
+This FastAPI-powered backend is the engine behind the SpeakUp application, designed to deliver accurate and insightful analysis of user audio and video data.
 
 ### Key Features:
-- **Open-Source Models**: 
-  - Finetuned *Wav2Vec2* for robust audio analysis.
-  - *Facial Emotions Image Detection* for video-based emotion recognition.
-- **No Proprietary AI**: 
+
+- **Open-Source Models**:
+  - Finetuned _Wav2Vec2_ for robust audio analysis.
+  - _Facial Emotions Image Detection_ for video-based emotion recognition.
+- **No Proprietary AI**:
   - No reliance on GPT or generative AI models—ensuring privacy, transparency, and full control over your data.
 - **Seamless Integration**:
   - Full support for **AWS S3** to store and manage large media files (video/audio).
   - **MongoDB** for managing core application data, including `users`, `assets`, and `analysis`.
 
 ### API Overview:
+
 The backend provides a range of APIs to handle:
+
 - **User Management**: Authentication, profiles, and user-related operations.
 - **Asset Management**: Upload, process, and retrieve media files.
 - **Authentication**: Secure login and session handling.
 - **Analysis**: Audio and video analysis with detailed feedback and scoring.
-
-With these capabilities, the SpeakUp Backend ensures high performance, flexibility, and scalability for a wide range of use cases.
-
 
 ## Setup
 
@@ -116,7 +115,6 @@ you have [AWS CLI](https://aws.amazon.com/cli/) installed and configured.
 > While running for the first time, this will take up quite some time since all
 > the ML models are loaded. Subsequent runs would be much much faster as they
 > would be cached
-
 
 ## Docs
 
