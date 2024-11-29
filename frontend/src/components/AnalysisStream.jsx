@@ -1,5 +1,8 @@
 import React, { useState, useRef } from "react";
-import LineChart from "./LineChart";
+import { Col, Row, Flex } from "antd";
+
+import RealTimeLineChart from "./RealTimeLineChart";
+import TextChip from "./TextChip";
 
 const AnalysisStream = () => {
   const [audioFile, setAudioFile] = useState(null);
@@ -124,101 +127,165 @@ const AnalysisStream = () => {
 
   return (
     <div>
-      <h2>Upload Audio and Video Files for Analysis</h2>
       {!isUploaded ? (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="assetId">Asset ID:</label>
-            <input
-              type="text"
-              id="assetId"
-              value={assetId}
-              onChange={handleAssetIdChange}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="audioFile">Audio File:</label>
-            <input
-              type="file"
-              id="audioFile"
-              accept="audio/*"
-              onChange={handleAudioFileChange}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="videoFile">Video File:</label>
-            <input
-              type="file"
-              id="videoFile"
-              accept="video/*"
-              onChange={handleVideoFileChange}
-              required
-            />
-          </div>
-          <button type="submit">Upload Files</button>
-        </form>
+        <>
+          <h2>Upload Audio and Video Files for Analysis</h2>
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="assetId">Asset ID:</label>
+              <input
+                type="text"
+                id="assetId"
+                value={assetId}
+                onChange={handleAssetIdChange}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="audioFile">Audio File:</label>
+              <input
+                type="file"
+                id="audioFile"
+                accept="audio/*"
+                onChange={handleAudioFileChange}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="videoFile">Video File:</label>
+              <input
+                type="file"
+                id="videoFile"
+                accept="video/*"
+                onChange={handleVideoFileChange}
+                required
+              />
+            </div>
+            <button type="submit">Upload Files</button>
+          </form>
+        </>
       ) : (
-        <div>
+        <>
           <h3>Real-time Analysis</h3>
-          <video
-            ref={videoRef}
-            controls
-            // DO NOT REMOVE PRELOAD. IT FUCKS UP STREAMING FROM S3
-            preload="auto"
-            src={
-              "https://speakup-devfest.s3.us-east-1.amazonaws.com/8366b5592a1045b6/sample.mp4?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIDErh%2FktgzijSDapXdGo3Gc6y4D8FYefd0th09YuVMnGAiBp7re4CfXHgf15U8ZJb75%2BJcQdVRnq6uI6Mi8wOXx%2FoirDBAhgEAUaDDQwNjM0MjA5NzU5NCIMD9H0VS9Wj7Grce34KqAE%2FW7Ew9AsLQ%2FtD%2FksXPxDgNAfMigYocSCsWtWMjSpcIJn9r%2FkTiJo72q4inCai28zhS3q%2B4skD7lz73pFUHSSK%2FMGF%2B5IaIKOrUf0BFzi9cdypDOo7DSdEauxJ8TkKSgz2CQ7jRRMkFPg3g6cLrwaTUTRHh0JoQAT4eTgHcbic5onzZN%2FSL3g7FCy3zJJp1JKAe%2BXPs6HF94ecm2lO4M5tV%2BtTZmkTcoqDpfMFKkbRQBbYGKNM%2BmEXUXQ6Wm21koUmIWfdhh16SQYugnFl7ZICscLTUstnbYXFWUuo%2FuDUGsE%2BCnFlLvUS%2FxHZbjdFKAv1LP3c%2BXkVOGFQzIb6PfBcM1uFjFBNPuVBs7%2B2dvVBlcKFRBSQfXux%2FD8sH2DO56qokUfeIn6jHNDFAa%2BPCUxXW4Kb3fsuD1pzYQIKFpSwTGJ2rKR7wV46wD28W2998jKsU1tIvHVNWeqh71GVRCk2O5L%2BJ9%2BYulJkApThcEukJXLW60r8eUJKh%2BbhDgn%2F15kNNbcMfSEYI%2FRWZOnWJUU3SqNktqxkqCPd5i0oT22gmwChQBNDZ3ECPAaOhjHu6SBeq2Fbg45pyEZOI8qQvGl5R%2FwYpJVS92CqHvo%2FZ0uNdLZZBton1vlU6nm3sX%2FaAFHjKYEIDwEQRiVXQFyeBqOKe3PIOR9qZSzj4Fl1GMqtGz1ZJNYWHIUTXmHGpaEY2KxkA7cHHDA1RwhDjfGgUhlfDCptaC6BjrGAl5lA1EvHM%2BnXGzw5fZfJhQiLfmEBMgXZM1Jrgm1TemeJLGE5%2FCWnY9CDhGOD7Q8RMd52%2FGXQNavLCiJ1aI294Ey8HwIraNZJbemw2zxZesQbIDWn96pqypvzTaYad9Re6VAv6%2B4OOyxxR0ATbGfSxBh3ldniw6aS9uDUYDWQ4m%2BXsGKGvlo%2BlbhM3aXDi7VweowMtUFLxjIlSCqVwL3glSs%2B7s5zKUS%2Fl7RqpciLE85znuinAeyJYXmWZ2Cqf4M3YyRKt%2BV5AqfCFpnsNbMd8C%2FOFGGjuALo5CP%2FK9KIUhhdDvB5FCAJ%2FtxqRjUvZm1Ub%2FroTrEf1zpo9aF4UzJhfhfYWmoI6ORmTxiqGoN8Cu5x3xM%2F0A2POC1NcjtSdqKI6kuVliyvuQ4sGZKz%2BAVHuUYV7ij6TRmLeSMu7X2VAYjF99LStZu&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAV5G7ALK5P4XY64CR%2F20241128%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241128T151106Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=7e463979009b7d3f324d70d271ea5cfeeb5b707a9821c4d258d4c9acfb94caf3"
-            }
-            width="600"
-            height="400"
-            onTimeUpdate={handleTimeUpdate}
-          ></video>
+          <Row>
+            <Col>
+              <video
+                ref={videoRef}
+                controls
+                // DO NOT REMOVE PRELOAD. IT FUCKS UP STREAMING FROM S3
+                preload="auto"
+                src={
+                  "https://speakup-devfest.s3.us-east-1.amazonaws.com/8366b5592a1045b6/sample.mp4?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCb2BFjYI06U9P%2FzrdBI4hYzQ50dS9kLzsPl49lwmRhEAIhALZ1VivRVbM9HIDoIVtQKynFPcBT%2FxwrM%2F6OxHASXS5FKsMECGUQBRoMNDA2MzQyMDk3NTk0IgxNGU7rlCtyEaO%2Fr3AqoASfzXA02U9VCOeVB9VtCy2hrEVmZPn7qkqmMG0c%2BWTp4jHkQVMg7zl7uNxzmqhxEejiH79%2FBY5WXca3iEhYmwhLjP3RE4Ou8fS3QHCyeY39giNUNihBni2kbgbX0Apq8bw%2B%2Fq%2FPhgLLLmGFOD2mOr15T1gjUmd4vbARNFQ%2BTGRXPUVkQDkCw9TxPVHtw07OjXsVfBF%2FUAgfZ403cGRIjmqZijwC4lRmNOngSCBD%2B8GKO8M6o3w9Mg6p768Dn7aUSRqxzV0%2BP1j5r1%2F1r5slg%2FZ61gHznVca5WYdfN5SOif22AFNj9Y8945MB2u0mW7L9uJ4ect3%2FwzXHf8tyXCMnJ1QitM7YExnBdDQV3Jt5bmpt5mR9JfYKFyoHD49nK92hagKkJ1Sn50nEDfCRubVpp1N66dGB9YZDxw40iQB%2F%2F2wdkkQbm5Nf0QMhNa0AzaGSEfo7QpYOVnnMRap0WVFvfMIjpVQrLAWGRzyNY3wJD5TjHpUs28wHs8FrMBtzUXKeLW7VgaA3sd1%2BGj%2FfITkiMG5H%2FUMGubCr4B6kx0T89BamhpfL6YIWf3Qmu3SIgHPKI2S6P0%2Fxq7nmKaUkgIEsySgTYncFRV%2BX%2FA7nX50EZJFO2SvqbgZ9v2bvGF3xOlwfJbObq%2BSkp4ct1aoMa2FmvDx10T15yKeF%2B%2F7EJ5ksFP3GJWV%2FxQltA3Pax4iJEXn41b6IRlHmAWe0KGASUf27XTTMKKXo7oGOsQCjkRZsBIGJ%2BuWxFS9CFppYVpYjyHYUcaP8uOtJ%2FNohuzGqvudZshvuII5Luk5%2FNzwK%2Bwh3l6EblK%2FSUkjfbkR0dAxjZc7AThpDJ9naCXgFLXc6sHWMn6qHRWdQGvR%2FJ%2BG2nxm1YBKFeLdWj7LhrbIXx2mNw45tHJgrL8S6Uo8tkvwb6ZImMXar8OzPLZVU0vGYRBqWxEoYdPTPRTqjSNokLX1bvprFmWQC7%2FCMgJ7ZAaEQGB44zpHCfY%2B%2Fge1Hk8ur%2F5ybS6vLeK1U%2BHCKTz%2FpgzXTNOOSMlSOprHipSjcUHlV53kqsU5oizefj2F9n2j4OQkIFkaYIC32au4Sx6CUlCZWuDNXQQV%2BQX3z54TL0%2BY04eFz6TH3lfTP22x0OGyNH8gCPDkuAhEmpr91y%2FgXy1P6rjOSuMVLEBO6L3Cjj1%2FBV51&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAV5G7ALK5EYSBFNXT%2F20241128%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241128T200021Z&X-Amz-Expires=39600&X-Amz-SignedHeaders=host&X-Amz-Signature=0b4227ef3dc8d7fe9bcab448b7f183e9ad00b814c6ce8687e3900cef752ca22b"
+                }
+                width="auto"
+                height="auto"
+                margin="1rem 1rem 1rem 1rem"
+                onTimeUpdate={handleTimeUpdate}
+              ></video>
+            </Col>
+            <Col>
+              <Flex>
+                <TextChip
+                  category="Running Score"
+                  message={
+                    latestAnalysisChunk && latestAnalysisChunk.score
+                      ? latestAnalysisChunk["score"]
+                      : ""
+                  }
+                  color="#ADF7B6"
+                />
+                <TextChip
+                  category="Modulation"
+                  message={
+                    latestAnalysisChunk && latestAnalysisChunk.feedback &&
+                    latestAnalysisChunk.feedback.modulation
+                      ? latestAnalysisChunk["feedback"]["modulation"]
+                      : ""
+                  }
+                  color="#ADF7B6"
+                />
 
-          {isStreaming ? (
-            processing ? (
-              <p>Processing...</p>
-            ) : latestAnalysisChunk ? (
-              <>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "2rem",
-                  }}
-                >
-                  <div>
-                    <LineChart
-                      title="Mean Pitch"
-                      dataKey="mean_pitch"
-                      newData={{
-                        timestep: latestAnalysisChunk["timestep"],
-                        data: latestAnalysisChunk["audio"]["mean_pitch"],
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <LineChart
-                      title="Mean Loudness"
-                      dataKey="mean_loudness"
-                      newData={{
-                        timestep: latestAnalysisChunk["timestep"],
-                        data: latestAnalysisChunk["audio"]["mean_loudness"],
-                      }}
-                    />
-                  </div>
-                  <pre id="latest">
-                    <code>{JSON.stringify(latestAnalysisChunk, null, 2)}</code>
-                  </pre>
-                </div>
-              </>
-            ) : (
-              <p>No analysis result yet.</p>
-            )
-          ) : (
-            <p>Waiting for real-time analysis...</p>
-          )}
-        </div>
+                <TextChip
+                  category="Loudness"
+                  message={
+                    latestAnalysisChunk && latestAnalysisChunk.feedback &&
+                    latestAnalysisChunk.feedback.loudness
+                      ? latestAnalysisChunk["feedback"]["loudness"]
+                      : ""
+                  }
+                  color="#FCF5C7"
+                />
+              </Flex>
+
+              <Flex>
+                <TextChip
+                  category="Pitch Variation"
+                  message={
+                    latestAnalysisChunk && latestAnalysisChunk.feedback &&
+                    latestAnalysisChunk.feedback.pitch_variation
+                      ? latestAnalysisChunk["feedback"]["pitch_variation"]
+                      : ""
+                  }
+                  color="#FFEE93"
+                />
+
+                <TextChip
+                  category="Loudness Variation"
+                  message={
+                    latestAnalysisChunk && latestAnalysisChunk.feedback &&
+                    latestAnalysisChunk.feedback.loudness_variation
+                      ? latestAnalysisChunk["feedback"]["loudness_variation"]
+                      : ""
+                  }
+                  color="#FFC09F"
+                />
+              </Flex>
+            </Col>
+            {/* <Col span={6}>
+              <pre id="latest">
+                <code>{JSON.stringify(latestAnalysisChunk, null, 2)}</code>
+              </pre>
+            </Col> */}
+          </Row>
+          <Row>
+            <Col span={24}>
+              {isStreaming ? (
+                processing ? (
+                  <p>Processing...</p>
+                ) : latestAnalysisChunk ? (
+                  <Flex>
+                    <Row>
+                      <RealTimeLineChart
+                        title="Mean Pitch"
+                        dataKey="mean_pitch"
+                        yDomain={["auto", "auto"]}
+                        newData={{
+                          timestep: latestAnalysisChunk["timestep"],
+                          data: latestAnalysisChunk["audio"]["mean_pitch"],
+                        }}
+                      />
+                    </Row>
+                    <Row>
+                      <RealTimeLineChart
+                        title="Mean Loudness"
+                        dataKey="mean_loudness"
+                        yDomain={["auto", "auto"]}
+                        newData={{
+                          timestep: latestAnalysisChunk["timestep"],
+                          data: latestAnalysisChunk["audio"]["mean_loudness"],
+                        }}
+                      />
+                    </Row>
+                  </Flex>
+                ) : (
+                  <p>No analysis result yet.</p>
+                )
+              ) : (
+                <p>Waiting for real-time analysis...</p>
+              )}
+            </Col>
+          </Row>
+        </>
       )}
     </div>
   );
